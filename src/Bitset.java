@@ -80,11 +80,6 @@ public class Bitset<E> extends AbstractSet<E> implements Set<E> {
     }
 
     @Override
-    public Object[] toArray() {
-        return set.toArray();
-    }
-
-    @Override
     public void clear() {
         set.clear();
     }
