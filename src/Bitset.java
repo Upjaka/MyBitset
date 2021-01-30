@@ -1,19 +1,40 @@
 import java.util.*;
 
+/**
+ * Вариант 18 -- bitset [Java]
+ *
+ * Реализовать множество над заданным набором объектов. Количество элементов в наборе задается в конструкторе.
+ * Конкретный элемент набора идентифицируется неотрицательным целым от нуля до количества элементов - 1
+ * (альтернатива -- уникальным именем).
+ * Операции: пересечение, объединение, дополнение; добавление/удаление заданного элемента (массива элементов),
+ * проверка принадлежности элемента множеству.
+ * Бонус: итератор по множеству.
+ *
+ * @author Лудов Александр.
+ */
 public class Bitset<E> extends AbstractSet<E> implements Set<E> {
+    /**
+     * Набор элементов.
+     */
     private final ArrayList<E> elements;
+    /**
+     * Множество над набором.
+     */
     private final Set<E> set;
 
+    /**
+     * Конструктор
+     * @param s задает набор над которым  реалуется множество.
+     */
     public Bitset(Set<E> s) {
         set = new HashSet<>();
         elements = new ArrayList<>(s);
     }
 
-    public Bitset() {
-        set = new HashSet<>();
-        elements = new ArrayList<>();
-    }
-
+    /**
+     * Приватный конструктор, используется внутри класса в методах union(), intersections() и complements()
+     * для создания дубликата исходного Bitset'а.
+     */
     private Bitset(ArrayList<E> list) {
         set = new HashSet<>();
         elements = new ArrayList<>(list);
@@ -73,6 +94,9 @@ public class Bitset<E> extends AbstractSet<E> implements Set<E> {
         return new BitsetIterator();
     }
 
+    /**
+     * Объединение двух множеств
+     */
     public Bitset<E> union(Bitset<E> other) {
         Bitset<E> result = new Bitset<>(elements);
         result.addAll(set);
@@ -80,6 +104,9 @@ public class Bitset<E> extends AbstractSet<E> implements Set<E> {
         return result;
     }
 
+    /**
+     * Пересечение двух множеств
+     */
     public Bitset<E> intersections(Bitset<E> other) {
         Bitset<E> result = new Bitset<>(elements);
         for (E e : other.set) {
@@ -88,6 +115,9 @@ public class Bitset<E> extends AbstractSet<E> implements Set<E> {
         return result;
     }
 
+    /**
+     * Дополнение множества
+     */
     public Bitset<E> complements() {
         Bitset<E> result = new Bitset<>(elements);
         for (E e : elements) {
@@ -105,6 +135,11 @@ public class Bitset<E> extends AbstractSet<E> implements Set<E> {
                 Objects.equals(set, bitset.set);
     }
 
+    /**
+     * По идее итератор можно и не писать, а использовать set.iterator().
+     * Но раз в задании написано, я сделал. Правда получилось не очень, я не нашел,
+     * как итераторы реализованы в Set.
+     */
     private class BitsetIterator implements Iterator<E> {
         int index;
 
