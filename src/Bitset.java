@@ -12,24 +12,27 @@ import java.util.*;
  *
  * @author Лудов Александр.
  */
-public class Bitset<E> {
+public class Bitset<E> implements Iterable<E> {
     private final List<E> elements;
 
     private final boolean[] bits;
 
+    private final int size;
+
     public Bitset(Collection<? extends E> collection) {
         elements = new ArrayList<>(new HashSet<>(collection));
-        bits = new boolean[elements.size()];
+        size = elements.size();
+        bits = new boolean[size];
         Arrays.fill(bits, false);
     }
 
-    public int size() {
-        return elements.size();
-    }
-
+    /**
+     *
+     * @return набор индексов
+     */
     public Set<Integer> indices() {
         Set<Integer> result = new HashSet<>();
-        for (int i = 0; i < size(); i++) {
+        for (int i = 0; i < size; i++) {
             if (bits[i]) result.add(i);
         }
         return result;
@@ -39,8 +42,13 @@ public class Bitset<E> {
         return bits[index];
     }
 
+    public boolean contains(E e) {
+        if (!elements.contains(e)) return false;
+        return bits[elements.indexOf(e)];
+    }
+
     public boolean add(int index) {
-        if (index < 0 || index >= size()) return false;
+        if (index < 0 || index >= size) return false;
         if (bits[index]) return false;
         else {
             bits[index] = true;
@@ -128,7 +136,7 @@ public class Bitset<E> {
      */
     public Bitset<E> complements() {
         Bitset<E> result = new Bitset<>(elements);
-        for (int i = 0; i < size(); i++) {
+        for (int i = 0; i < size; i++) {
             result.bits[i] = !bits[i];
         }
         return result;
@@ -143,6 +151,7 @@ public class Bitset<E> {
                 Arrays.equals(bits, other.bits);
     }
 
+    @Override
     public Iterator<E> iterator() { return new BitsetIterator(); }
 
     private class BitsetIterator implements Iterator<E> {
@@ -152,7 +161,7 @@ public class Bitset<E> {
         public BitsetIterator() {
             cursor = 0;
             nextElem = 0;
-            for (int i = 1; i < size(); i++) {
+            for (int i = 1; i < size; i++) {
                 if (bits[i]) nextElem = i;
             }
         }
@@ -163,7 +172,7 @@ public class Bitset<E> {
 
         public E next() {
             cursor = nextElem;
-            for (int i = 1; i < size(); i++) {
+            for (int i = 1; i < size; i++) {
                 if (bits[i]) nextElem = i;
             }
             return elements.get(cursor);
