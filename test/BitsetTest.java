@@ -5,7 +5,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 final class BitsetTest {
-    final List<Integer> all = Arrays.asList(0, 1, 2, 3, 4, 5);
+    final List<Integer> allNumbers = Arrays.asList(0, 1, 2, 3, 4, 5);
     final int size = 6;
     Bitset bitset = new Bitset(size);
 
@@ -26,7 +26,7 @@ final class BitsetTest {
 
     @Test
     void add() {
-        Set<Integer> expected = new HashSet<>(Collections.singletonList(0));
+        List<Integer> expected = new LinkedList<>(Collections.singleton(0));
         assertTrue(bitset.add(0));
         assertEquals(expected, bitset.indices());
         assertTrue(bitset.add(1));
@@ -40,14 +40,14 @@ final class BitsetTest {
     void addAll() {
         List<Integer> init = Arrays.asList(0, 1, 2);
         assertTrue(bitset.addAll(init));
-        assertEquals(new HashSet<>(init), bitset.indices());
+        assertEquals(new LinkedList<>(init), bitset.indices());
     }
 
     @Test
     void remove() {
         List<Integer> init = Arrays.asList(0, 1, 2);
         bitset.addAll(init);
-        Set<Integer> expected = new HashSet<>(init);
+        List<Integer> expected = new LinkedList<>(init);
         expected.remove(2);
 
         assertTrue(bitset.remove(2));
@@ -57,9 +57,9 @@ final class BitsetTest {
 
     @Test
     void removeAll() {
-        Set<Integer> expected = new HashSet<>(Arrays.asList(4, 5));
-        Set<Integer> init = new HashSet<>(Arrays.asList(0, 1, 2, 3));
-        bitset.addAll(all);
+        List<Integer> expected = Arrays.asList(4, 5);
+        List<Integer> init = Arrays.asList(0, 1, 2, 3);
+        bitset.addAll(allNumbers);
 
         assertTrue(bitset.removeAll(init));
         assertEquals(expected, bitset.indices());
@@ -77,11 +77,12 @@ final class BitsetTest {
         Bitset bitset2 = new Bitset(size);
         bitset2.addAll(init2);
         Bitset expected = new Bitset(size);
-        expected.addAll(all);
+        expected.addAll(allNumbers);
 
         assertEquals(bitset.union(bitset1), expected);
         assertEquals(bitset.union(bitset2), expected);
         assertEquals(bitset.union(new Bitset(size)), bitset);
+        assertThrows(IllegalArgumentException.class, () -> bitset.union(new Bitset(10)));
     }
 
     @Test
@@ -100,6 +101,7 @@ final class BitsetTest {
         assertEquals(bitset.intersections(bitset1), expected);
         assertEquals(bitset.intersections(bitset2), new Bitset(size));
         assertEquals(bitset.intersections(bitset), bitset);
+        assertThrows(IllegalArgumentException.class, () -> bitset.intersections(new Bitset(10)));
     }
 
     @Test
@@ -110,7 +112,7 @@ final class BitsetTest {
         Bitset bitset1 = new Bitset(size);
         bitset1.addAll(init1);
         Bitset bitset2 = new Bitset(size);
-        bitset2.addAll(all);
+        bitset2.addAll(allNumbers);
 
         assertEquals(bitset.complements(), bitset1);
         assertEquals(bitset1.complements(), bitset);
@@ -123,5 +125,23 @@ final class BitsetTest {
         bitset.add(3);
         assertTrue(bitset.contains(3));
         assertFalse(bitset.contains(1));
+    }
+
+    @Test
+    void iterator() {
+        List<Integer> expected = Arrays.asList(0, 2, 4);
+        bitset.addAll(expected);
+        List<Integer> actual = new LinkedList<>();
+        for (int i : bitset) {
+            actual.add(i);
+        }
+        assertEquals(expected, actual);
+        actual.clear();
+
+        bitset.addAll(allNumbers);
+        for (int i : bitset) {
+            actual.add(i);
+        }
+        assertEquals(allNumbers, actual);
     }
 }

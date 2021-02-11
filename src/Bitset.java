@@ -15,35 +15,46 @@ import java.util.*;
 public class Bitset implements Iterable<Integer> {
     private final boolean[] bits;
 
-    private final int size;
-
+    /**
+     * Конструктор битсета размера size
+     */
     public Bitset(int size) {
-        this.size = size;
         bits = new boolean[size];
         Arrays.fill(bits, false);
     }
 
-    public Set<Integer> indices() {
-        Set<Integer> result = new HashSet<>();
-        for (int i = 0; i < size; i++) {
+    /**
+     * Возвращает список индексов, значение которых равно true
+     */
+    public List<Integer> indices() {
+        List<Integer> result = new LinkedList<>();
+        for (int i = 0; i < bits.length; i++) {
             if (bits[i]) result.add(i);
         }
         return result;
     }
 
+    /**
+     * @return true, если элемент с заданным индексом содержится в битсете
+     */
     public boolean contains(int index) {
         return bits[index];
     }
 
+    /**
+     * Добавляет элемент с заданным индексом в битсет.
+     * @return true, если битсет изменился
+     */
     public boolean add(int index) {
-        if (index < 0 || index >= size) return false;
-        if (bits[index]) return false;
-        else {
-            bits[index] = true;
-            return true;
-        }
+        if (index < 0 || index >= bits.length || bits[index]) return false;
+        bits[index] = true;
+        return true;
     }
 
+    /**
+     * Добавляет все элементы с заданными индексами.
+     * @return true, если битсет изменился
+     */
     public boolean addAll(Collection<Integer> collection) {
         boolean modified = false;
         for (int i : collection)
@@ -53,6 +64,10 @@ public class Bitset implements Iterable<Integer> {
         return modified;
     }
 
+    /**
+     * Удаляет элемент с заданным индексом из битсета.
+     * @return true, если элемент находился в битсете
+     */
     public boolean remove(int index) {
         if (bits[index]) {
             bits[index] = false;
@@ -62,6 +77,10 @@ public class Bitset implements Iterable<Integer> {
         }
     }
 
+    /**
+     * Удаляет все элементы с заданными индексами из битсета.
+     * @return true, если битсет изменился
+     */
     public boolean removeAll(Collection<Integer> collection) {
         boolean modified = false;
         for (int i : collection)
@@ -72,36 +91,40 @@ public class Bitset implements Iterable<Integer> {
     }
 
     /**
-     * Объединение двух множеств
+     * Объединение двух битсетов. Объединить можно только битсеты одинакового размера.
+     * @return битсет, который является объединением двух исходных битсетов
+     * @throws IllegalArgumentException {@inheritDoc}
      */
     public Bitset union(Bitset other) {
-        if (size != other.size) throw new IllegalArgumentException("the argument has an invalid size");
-        Bitset result = new Bitset(size);
-        result.addAll(indices());
-        result.addAll(other.indices());
+        if (bits.length != other.bits.length) throw new IllegalArgumentException("the argument has an invalid size");
+        Bitset result = new Bitset(bits.length);
+        for (int i = 0; i < bits.length; i++) {
+            if (bits[i] || other.bits[i]) result.bits[i] = true;
+        }
         return result;
     }
 
     /**
-     * Пересечение двух множеств
+     * Пересечение двух битсетов. Найти пересечение можно только у битсетов одинакового размера
+     * @return битсет, который является пересечением двух исходных битсетов
+     * @throws IllegalArgumentException {@inheritDoc}
      */
     public Bitset intersections(Bitset other) {
-        if (size != other.size) throw new IllegalArgumentException("the argument has an invalid size");
-        Bitset result = new Bitset(size);
-        Set<Integer> indices = indices();
-        Set<Integer> otherIndices = other.indices();
-        for (int i : indices) {
-            if (otherIndices.contains(i) || indices.contains(i)) result.add(i);
+        if (bits.length != other.bits.length) throw new IllegalArgumentException("the argument has an invalid size");
+        Bitset result = new Bitset(bits.length);
+        for (int i = 0; i < bits.length; i++) {
+            if (bits[i] && other.bits[i]) result.bits[i] = true;
         }
         return result;
     }
 
     /**
      * Дополнение множества
+     * @return битсет, который является дополнением исходного битсета
      */
     public Bitset complements() {
-        Bitset result = new Bitset(size);
-        for (int i = 0; i < size; i++) {
+        Bitset result = new Bitset(bits.length);
+        for (int i = 0; i < bits.length; i++) {
             result.bits[i] = !bits[i];
         }
         return result;
@@ -110,8 +133,8 @@ public class Bitset implements Iterable<Integer> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < size; i++) {
-            if (bits[i]) sb.append(1);
+        for (boolean bit : bits) {
+            if (bit) sb.append(1);
             else sb.append(0);
         }
         return sb.toString();
@@ -122,7 +145,7 @@ public class Bitset implements Iterable<Integer> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Bitset other = (Bitset) o;
-        return size == other.size && Arrays.equals(bits, other.bits);
+        return bits.length == other.bits.length && Arrays.equals(bits, other.bits);
     }
 
     @Override
@@ -137,19 +160,21 @@ public class Bitset implements Iterable<Integer> {
         public BitsetIterator() {
             cursor = 0;
             nextIndex = 0;
-            for (int i = 1; i < size; i++) {
-                if (bits[i]) nextIndex = i;
-            }
         }
 
+        @Override
         public boolean hasNext() {
-            return nextIndex != cursor;
+            return nextIndex != cursor || nextIndex == 0;
         }
 
+        @Override
         public Integer next() {
             cursor = nextIndex;
-            for (int i = 1; i < size; i++) {
-                if (bits[i]) nextIndex = i;
+            for (int i = nextIndex + 1; i < bits.length; i++) {
+                if (bits[i]) {
+                    nextIndex = i;
+                    break;
+                }
             }
             return cursor;
         }
