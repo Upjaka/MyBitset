@@ -129,9 +129,22 @@ final class BitsetTest {
 
     @Test
     void iterator() {
-        List<Integer> expected = Arrays.asList(0, 2, 4);
-        bitset.addAll(expected);
         List<Integer> actual = new LinkedList<>();
+        for (int i : bitset) {
+            actual.add(i);
+        }
+        assertEquals(Collections.EMPTY_LIST, actual);
+        actual.clear();
+
+        bitset.add(0);
+        for (int i : bitset) {
+            actual.add(i);
+        }
+        assertEquals(Collections.singletonList(0), actual);
+        actual.clear();
+
+        final List<Integer> expected = Arrays.asList(0, 2, 4);
+        bitset.addAll(expected);
         for (int i : bitset) {
             actual.add(i);
         }

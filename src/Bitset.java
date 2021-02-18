@@ -158,24 +158,24 @@ public class Bitset implements Iterable<Integer> {
         int nextIndex;
 
         public BitsetIterator() {
-            cursor = 0;
-            nextIndex = 0;
+            cursor = -1;
+            nextIndex = -1;
         }
 
         @Override
         public boolean hasNext() {
-            return nextIndex != cursor || nextIndex == 0;
+            for (int i = cursor + 1; i < bits.length; i++) {
+                if (bits[i]) {
+                    nextIndex = i;
+                    return true;
+                }
+            }
+            return false;
         }
 
         @Override
         public Integer next() {
             cursor = nextIndex;
-            for (int i = nextIndex + 1; i < bits.length; i++) {
-                if (bits[i]) {
-                    nextIndex = i;
-                    break;
-                }
-            }
             return cursor;
         }
     }
