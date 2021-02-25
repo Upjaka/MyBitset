@@ -154,17 +154,15 @@ public class Bitset implements Iterable<Integer> {
     }
 
     private class BitsetIterator implements Iterator<Integer> {
-        int cursor;
         int nextIndex;
 
         public BitsetIterator() {
-            cursor = -1;
             nextIndex = -1;
         }
 
         @Override
         public boolean hasNext() {
-            for (int i = cursor + 1; i < bits.length; i++) {
+            for (int i = nextIndex + 1; i < bits.length; i++) {
                 if (bits[i]) {
                     nextIndex = i;
                     return true;
@@ -175,8 +173,7 @@ public class Bitset implements Iterable<Integer> {
 
         @Override
         public Integer next() {
-            cursor = nextIndex;
-            return cursor;
+            return nextIndex;
         }
     }
 }
